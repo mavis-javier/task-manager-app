@@ -1,8 +1,10 @@
 package com.majl_2026.task.service.impl;
 
 import com.majl_2026.task.domain.CreateTaskRequest;
+import com.majl_2026.task.domain.UpdateTaskRequest;
 import com.majl_2026.task.domain.entity.Task;
 import com.majl_2026.task.domain.enums.TaskStatus;
+import com.majl_2026.task.exception.TaskNotFoundException;
 import com.majl_2026.task.repository.TaskRepository;
 import com.majl_2026.task.service.TaskService;
 import org.springframework.data.domain.Sort;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -40,5 +43,19 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> listTasks() {
         return taskRepository.findAll(Sort.by(Sort.Direction.ASC, "created"));
+    }
+
+    @Override
+    public Task updateTask(UUID taskId, UpdateTaskRequest request) {
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+        existingTask.setTitle(request.title());
+        existingTask.setDescription(request.description());
+        existingTask.setDueDate(request.dueDate());
+        existingTask.setStatus(request.status());
+        existingTask.setPriority(request.priority());
+        existingTask.setUpdated(Instant.now());
+
+        return taskRepository.save(existingTask);
     }
 }

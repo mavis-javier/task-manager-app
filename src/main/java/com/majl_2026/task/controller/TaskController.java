@@ -1,7 +1,9 @@
 package com.majl_2026.task.controller;
 
 import com.majl_2026.task.domain.CreateTaskRequest;
+import com.majl_2026.task.domain.UpdateTaskRequest;
 import com.majl_2026.task.domain.dto.TaskDto;
+import com.majl_2026.task.domain.dto.UpdateTaskRequestDto;
 import com.majl_2026.task.domain.entity.Task;
 import com.majl_2026.task.mapper.TaskMapper;
 import com.majl_2026.task.service.TaskService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController// receives REST API endpoints
 @RequestMapping(path = "/api/v1/tasks")
@@ -41,5 +44,16 @@ public class TaskController {
                 .toList();
 
         return ResponseEntity.ok(taskDtoList);
+    }
+
+    @PutMapping(path = "/{taskId}")
+    public ResponseEntity<TaskDto> updateTask(
+        @PathVariable UUID taskId,
+        @Valid @RequestBody UpdateTaskRequestDto updateTaskRequestDto
+    ) {
+        UpdateTaskRequest updateTaskRequest = taskMapper.fromDto(updateTaskRequestDto);
+        Task task = taskService.updateTask(taskId, updateTaskRequest);
+        TaskDto updatedTaskDto = taskMapper.toDto(task);
+        return ResponseEntity.ok(updatedTaskDto);
     }
 }
