@@ -1,0 +1,32 @@
+package com.majl_2026.task.mapper.impl;
+
+import com.majl_2026.task.domain.CreateTaskRequest;
+import com.majl_2026.task.domain.dto.TaskDto;
+import com.majl_2026.task.domain.entity.Task;
+import com.majl_2026.task.mapper.TaskMapper;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TaskMapperImpl implements TaskMapper {
+    @Override
+    public CreateTaskRequest fromDto(CreateTaskRequest dto) {
+        return new CreateTaskRequest(
+                dto.title(),
+                dto.description(),
+                dto.dueDate(),
+                dto.priority()
+        );
+    }
+
+    @Override
+    public TaskDto toDto(Task task) {
+        return new TaskDto(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDueDate(),
+                task.getPriority(),
+                task.getStatus()
+        );
+    }
+}
