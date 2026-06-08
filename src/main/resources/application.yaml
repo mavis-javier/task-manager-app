@@ -1,3 +1,19 @@
 spring:
+  config:
+    import: "optional:file:.env[.properties]"
   application:
     name: task
+
+  # MySQL Database Connection
+  datasource:
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
+
+  # used to update db rows based on entity classes
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8806
