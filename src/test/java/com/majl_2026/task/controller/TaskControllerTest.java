@@ -2,6 +2,7 @@ package com.majl_2026.task.controller;
 
 import com.majl_2026.task.domain.CreateTaskRequest;
 import com.majl_2026.task.domain.UpdateTaskRequest;
+import com.majl_2026.task.domain.dto.CreateTaskRequestDto;
 import com.majl_2026.task.domain.dto.TaskDto;
 import com.majl_2026.task.domain.dto.UpdateTaskRequestDto;
 import com.majl_2026.task.domain.entity.Task;
@@ -55,7 +56,7 @@ class TaskControllerTest {
 
     @Test
     void createTask_withValidBody_returns201() throws Exception {
-        when(taskMapper.fromDto(any(CreateTaskRequest.class)))
+        when(taskMapper.fromDto(any(CreateTaskRequestDto.class)))
                 .thenReturn(new CreateTaskRequest("New Task", "A description",
                         futureDate, TaskPriority.HIGH));
         when(taskService.createTask(any())).thenReturn(task);

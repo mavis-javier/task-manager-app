@@ -2,6 +2,7 @@ package com.majl_2026.task.controller;
 
 import com.majl_2026.task.domain.CreateTaskRequest;
 import com.majl_2026.task.domain.UpdateTaskRequest;
+import com.majl_2026.task.domain.dto.CreateTaskRequestDto;
 import com.majl_2026.task.domain.dto.TaskDto;
 import com.majl_2026.task.domain.dto.UpdateTaskRequestDto;
 import com.majl_2026.task.domain.entity.Task;
@@ -28,7 +29,7 @@ public class TaskController {
 
     @PostMapping // HTTP post method to use
     public ResponseEntity<TaskDto> createTask(
-            @Valid @RequestBody CreateTaskRequest createTaskRequestDto
+            @Valid @RequestBody CreateTaskRequestDto createTaskRequestDto
     ) {
         CreateTaskRequest createTaskRequest = taskMapper.fromDto(createTaskRequestDto);
         Task task = taskService.createTask(createTaskRequest);
