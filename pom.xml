@@ -75,6 +75,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>task-manager-app</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
