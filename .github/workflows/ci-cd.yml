@@ -42,6 +42,33 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
+    # Step 1: Configure AWS Credentials using secuire OIDC (no hardcoded passwords)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::599073465115:role/root
+          aws-region: us-east-2a
+          
+      # Step 2: Get the runner's current public IP
+      - name: Get GitHub Runner Public IP
+        id: ip
+        run: echo "ipv4=$(curl -s https://ipify.org)" >> $GITHUB_OUTPUT
+  
+      # Step 3: Open MySQL Port (3306) in your dedicated security group
+      - name: Whitelist Runner IP
+        run: |
+          aws ec2 authorize-security-group-inbound \
+            --group-id sg-016c99830a076940b \
+            --protocol tcp \
+            --port 3306 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+  
+      # Step 4: Run your MySQL scripts or migrations
+      #- name: Run MySQL Tasks
+      #  run: |
+      #    mysql -h ://amazonaws.com -u ${{ secrets.DB_USER }} -p${{ secrets.DB_PASSWORD }} -e "SHOW DATABASES;"
+  
+      # Continue original CI/CD workflow    
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -64,7 +91,18 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           source: "target/*.jar"
           target: "/home/ec2-user/deployment/"
-  
+
+      # Step 5: Clean up and close the port (Runs automatically even if Step 4 fails)
+      - name: Revoke Runner IP
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-inbound \
+            --group-id sg-016c99830a076940b \
+            --protocol tcp \
+            --port 3306 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      # part of original CI/CD workflow
       - name: Connect SSH and Restart Services
         run: |
           ssh -o StrictHostKeyChecking=no -i $HOME/key.pem ec2-user@${{ secrets.DEPLOY_HOST }} '
