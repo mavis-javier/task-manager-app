@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# permissions for AWS
+permissions: 
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,22 +47,22 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-    # Step 1: Configure AWS Credentials using secuire OIDC (no hardcoded passwords)
+    # Step 1: Configure AWS Credentials using secure OIDC (no hardcoded passwords)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::599073465115:role/root
-          aws-region: us-east-2a
+          aws-region: us-east-2
           
       # Step 2: Get the runner's current public IP
       - name: Get GitHub Runner Public IP
         id: ip
-        run: echo "ipv4=$(curl -s https://ipify.org)" >> $GITHUB_OUTPUT
+        run: echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
   
       # Step 3: Open MySQL Port (3306) in your dedicated security group
       - name: Whitelist Runner IP
         run: |
-          aws ec2 authorize-security-group-inbound \
+          aws ec2 authorize-security-group-ingress \
             --group-id sg-016c99830a076940b \
             --protocol tcp \
             --port 3306 \
@@ -96,7 +101,7 @@ jobs:
       - name: Revoke Runner IP
         if: always()
         run: |
-          aws ec2 revoke-security-group-inbound \
+          aws ec2 revoke-security-group-ingress \
             --group-id sg-016c99830a076940b \
             --protocol tcp \
             --port 3306 \
